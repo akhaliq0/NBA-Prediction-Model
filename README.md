@@ -122,6 +122,6 @@ nba-prediction-project/
     }
   }
 ]
-
-License
-This project is licensed under the MIT License – see the LICENSE (inset link) file for details.
+```
+##License
+This project is licensed under the MIT License – see the LICENSE(inset link) file for details.
