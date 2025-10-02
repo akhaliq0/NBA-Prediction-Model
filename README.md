@@ -32,12 +32,18 @@ Injury reports, lineup data, and playoff games are included to make predictions 
 ---
 
 nba-prediction-project/
-│── data/ # Raw + processed NBA API datasets
-│── notebooks/ # Jupyter notebooks for exploration & modeling
-│── src/ # Scripts for data, features, modeling, evaluation
-│── models/ # Saved regression models (joblib/pickle)
-│── results/ # Prediction outputs + evaluation metrics
-│── README.md # Project documentation
+ 
+ │── data/ # Raw + processed NBA API datasets
+ 
+ │── notebooks/ # Jupyter notebooks for exploration & modeling
+ 
+ │── src/ # Scripts for data, features, modeling, evaluation
+ 
+ │── models/ # Saved regression models (joblib/pickle)
+ 
+ │── results/ # Prediction outputs + evaluation metrics
+ 
+ │── README.md # Project documentation
 
 
 ---
@@ -123,5 +129,5 @@ nba-prediction-project/
   }
 ]
 ```
-##License
+## License
 This project is licensed under the MIT License – see the LICENSE(inset link) file for details.
