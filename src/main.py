@@ -23,5 +23,4 @@ def extract_home_away(row):
 
 games_df[['HOME_TEAM', 'AWAY_TEAM']] = games_df.apply(extract_home_away, axis=1)
 
-
 print(games_df[['GAME_DATE', 'TEAM_ID', 'TEAM_ABBREVIATION', 'MATCHUP']].head())
