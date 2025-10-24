@@ -60,29 +60,38 @@ def add_home_away_rolling_pts(df: pd.DataFrame, window: int = 10) -> pd.DataFram
 
 def build_matchup_frame(df: pd.DataFrame, window: int = 10) -> pd.DataFrame:
     """
-    Build a dataset where each row represents one team in one game,
-    containing both its own offensive rolling stats and the opponent's defensive rolling stats.
+    One row per team-game:
+      - team offensive rolling stats (last N)
+      - opponent defensive rolling stats (last N)
+      - context: HOME, days_rest, is_b2b
+      - target: PTS
     """
     df = df.sort_values(["TEAM_ID", "GAME_DATE"]).copy()
 
-    # pick columns that describe offense & defense
+    # offensive and defensive feature names
     off_cols = [f"eFG_r{window}", f"FTr_r{window}", f"TOV_rate_r{window}",
                 f"ORB_pct_r{window}", f"PTS_r{window}"]
     def_cols = [f"eFG_allowed_r{window}", f"TOV_rate_forced_r{window}"]
 
-    # offensive frame
-    off = df[["GAME_ID","TEAM_ID","TEAM_NAME","HOME"] + off_cols].copy()
-    # defensive frame (rename with _opp_)
-    opp = df[["GAME_ID","TEAM_ID"] + def_cols].rename(
-        columns={c: f"{c}_opp" for c in def_cols}
+    # context columns (must exist from add_rolling/basic_context)
+    ctx_cols = ["HOME", "days_rest", "is_b2b"]
+
+    # build offensive frame with context
+    use_off = ["GAME_ID","TEAM_ID","TEAM_NAME"] + ctx_cols + off_cols
+    off = df[use_off].copy()
+
+    # opponent defensive frame (rename with _opp suffix)
+    opp_cols = ["TEAM_ID"] + def_cols
+    opp = df[["GAME_ID"] + opp_cols].rename(
+        columns={c: f"{c}_opp" for c in opp_cols}
     )
 
-    # merge each team row with its opponent's defensive features
-    merged = off.merge(opp, on="GAME_ID", suffixes=("","_x"))
-    merged = merged[merged["TEAM_ID"] != merged["TEAM_ID_x"]].drop(columns=["TEAM_ID_x"])
+    # merge offense with opponent defense for the same GAME_ID, drop self-join
+    merged = off.merge(opp, on="GAME_ID", how="inner")
+    merged = merged[merged["TEAM_ID"] != merged["TEAM_ID_opp"]].drop(columns=["TEAM_ID_opp"])
 
-    # bring in target (actual points scored)
-    pts = df[["GAME_ID","TEAM_ID","PTS"]]
-    merged = merged.merge(pts, on=["GAME_ID","TEAM_ID"])
-
+    # attach target
+    merged = merged.merge(df[["GAME_ID","TEAM_ID","PTS"]], on=["GAME_ID","TEAM_ID"], how="left")
+    
     return merged.reset_index(drop=True)
+
